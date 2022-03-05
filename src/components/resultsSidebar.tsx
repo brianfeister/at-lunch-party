@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme) => ({
 
 const ResultsSidebar = () => {
   const classes = useStyles();
-  const { places } = useContext(StoreContext);
+  const { places = [] } = useContext(StoreContext);
   return (
     <Box className={classes.container}>
       {places.map((place) => (
