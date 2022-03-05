@@ -1,11 +1,18 @@
 module.exports = {
   siteMetadata: {
-    title: 'Gatsby Typescript Material UI Starter',
+    title: '🎉 AT Lunch Party',
     description:
       'The default gatsby starter with typescript, material ui & latest package',
-    author: '@danangekal',
+    author: '@brianfeister',
   },
   plugins: [
+    {
+      resolve: 'gatsby-plugin-google-fonts',
+      options: {
+        fonts: ['IBM Plex Sans'],
+        display: 'swap',
+      },
+    },
     'gatsby-plugin-material-ui',
     'gatsby-plugin-react-helmet',
     'gatsby-plugin-image',
