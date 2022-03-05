@@ -24,17 +24,23 @@ const StoreProvider = ({ children }: { children: ReactChildren }) => {
   const [places, _setPlaces] = useState([]);
 
   const setPlaces = (val) => {
-    reactLocalStorage.setObject('at_lunch_last_located', val);
-    _setPlaces(val);
+    if (window?.localStorage) {
+      reactLocalStorage.setObject('at_lunch_last_located', val || []);
+    }
+    _setPlaces(val || []);
   };
 
   const setLocated = (val) => {
-    reactLocalStorage.setObject('at_lunch_last_located', val);
+    if (window?.localStorage) {
+      reactLocalStorage.setObject('at_lunch_last_located', val);
+    }
     _setLocated(val);
   };
 
   const setLatLng = (val) => {
-    reactLocalStorage.setObject('at_last_lat_lng', val);
+    if (window?.localStorage) {
+      reactLocalStorage.setObject('at_last_lat_lng', val);
+    }
     _setLatLng(val);
   };
 
