@@ -9,6 +9,7 @@ const StoreProvider = ({ children }: { children: ReactChildren }) => {
   const [located, _setLocated] = useState(undefined);
   const noop = () => {};
   const [googleService, setGoogleService] = useState(noop);
+  const [places, _setPlaces] = useState([]);
   // NOTE: This is a hack. React hooks are not well set up to handle a service pattern
   // (which is a bit antiquated relative to modern JavaScript standards)
   useEffect(() => {
@@ -21,26 +22,19 @@ const StoreProvider = ({ children }: { children: ReactChildren }) => {
     lat: 36.408108,
     lng: -105.572679,
   });
-  const [places, _setPlaces] = useState([]);
 
   const setPlaces = (val) => {
-    if (window?.localStorage) {
-      reactLocalStorage.setObject('at_lunch_last_located', val || []);
-    }
+    reactLocalStorage.setObject('at_lunch_last_located', val || []);
     _setPlaces(val || []);
   };
 
   const setLocated = (val) => {
-    if (window?.localStorage) {
-      reactLocalStorage.setObject('at_lunch_last_located', val);
-    }
+    reactLocalStorage.setObject('at_lunch_last_located', val);
     _setLocated(val);
   };
 
   const setLatLng = (val) => {
-    if (window?.localStorage) {
-      reactLocalStorage.setObject('at_last_lat_lng', val);
-    }
+    reactLocalStorage.setObject('at_last_lat_lng', val);
     _setLatLng(val);
   };
 

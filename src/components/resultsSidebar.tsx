@@ -22,23 +22,24 @@ const useStyles = makeStyles((theme) => ({
 
 const ResultsSidebar = () => {
   const classes = useStyles();
-  const { places = [] } = useContext(StoreContext);
+  const { places } = useContext(StoreContext);
   return (
     <Box className={classes.container}>
-      {places.map((place) => (
-        <Card className={classes.card} variant="outlined">
-          <CardContent>
-            <Typography
-              sx={{ fontSize: 14 }}
-              color="text.secondary"
-              gutterBottom
-              variant="h6"
-            >
-              {place.name}
-            </Typography>
-          </CardContent>
-        </Card>
-      ))}
+      {places
+        && places.map((place) => (
+          <Card className={classes.card} variant="outlined">
+            <CardContent>
+              <Typography
+                sx={{ fontSize: 14 }}
+                color="text.secondary"
+                gutterBottom
+                variant="h6"
+              >
+                {place.name}
+              </Typography>
+            </CardContent>
+          </Card>
+        ))}
     </Box>
   );
 };
