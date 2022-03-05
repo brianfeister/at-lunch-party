@@ -3,28 +3,37 @@ import {
 } from 'react';
 import { reactLocalStorage } from 'reactjs-localstorage';
 
-const StoreContext = createContext();
+const defaultState = {
+  located: undefined,
+  places: [],
+  mapRadius: 50,
+  latLng: {
+    lat: 36.408108,
+    lng: -105.572679,
+  },
+  googleService: () => {},
+};
+
+const StoreContext = createContext(defaultState);
 
 const StoreProvider = ({ children }: { children: ReactChildren }) => {
-  const [located, _setLocated] = useState(undefined);
-  const noop = () => {};
-  const [googleService, setGoogleService] = useState(noop);
-  const [places, _setPlaces] = useState([]);
+  const [located, _setLocated] = useState(defaultState.located);
+  const [googleService, setGoogleService] = useState(
+    defaultState.googleService,
+  );
+  const [places, _setPlaces] = useState(defaultState.places);
   // NOTE: This is a hack. React hooks are not well set up to handle a service pattern
   // (which is a bit antiquated relative to modern JavaScript standards)
   useEffect(() => {
-    setGoogleService(() => noop);
+    setGoogleService(() => defaultState.googleService);
   }, []);
 
-  const [mapRadius, setMapRadius] = useState(50);
+  const [mapRadius, setMapRadius] = useState(defaultState.mapRadius);
   // the coordinates where everyone wants to be
-  const [latLng, _setLatLng] = useState({
-    lat: 36.408108,
-    lng: -105.572679,
-  });
+  const [latLng, _setLatLng] = useState(defaultState.latLng);
 
   const setPlaces = (val) => {
-    reactLocalStorage.setObject('at_lunch_last_located', val || []);
+    reactLocalStorage.setObject('at_lunch_last_located', val);
     _setPlaces(val || []);
   };
 
