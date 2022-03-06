@@ -12,17 +12,62 @@ const useStyles = makeStyles((theme) => ({
     height: 'calc(100vh - 5.5rem)',
     width: '35vw',
     background: '#f2f2f2',
-    [theme.breakpoints.down('md')]: {},
+    [theme.breakpoints.down('md')]: {
+      // TODO: decide about drawer vs other hide / show for final mobile
+      // for now, we hide it
+
+      display: 'none',
+      // width: '100%',
+      // height: 'auto',
+      // position: 'relative',
+    },
   },
   card: {
     margin: '1vw',
     width: '33vw',
+    [theme.breakpoints.down('md')]: {
+      width: '96vw',
+      margin: '2vw',
+    },
+  },
+  sidebarMessage: {
+    textAlign: 'center',
+    padding: '3vw',
   },
 }));
 
 const ResultsSidebar = () => {
   const classes = useStyles();
-  const { places } = useContext(StoreContext);
+  const { places, sidebarError } = useContext(StoreContext);
+
+  if (sidebarError) {
+    return (
+      <Box className={classes.container}>
+        <Typography
+          className={classes.sidebarMessage}
+          variant="h5"
+          component="h3"
+        >
+          {sidebarError}
+        </Typography>
+      </Box>
+    );
+  }
+
+  if (places?.length <= 0) {
+    return (
+      <Box className={classes.container}>
+        <Typography
+          className={classes.sidebarMessage}
+          variant="h5"
+          component="h3"
+        >
+          Searching for nearby restaurants...
+        </Typography>
+      </Box>
+    );
+  }
+
   return (
     <Box className={classes.container}>
       {places
