@@ -14,6 +14,10 @@ const defaultState = {
   googleService: () => {},
 };
 
+const isEmptyObject = (obj: any) => obj
+  && Object.keys(obj).length === 0
+  && Object.getPrototypeOf(obj) === Object.prototype;
+
 const StoreContext = createContext(defaultState);
 
 const StoreProvider = ({ children }: { children: ReactChildren }) => {
@@ -31,36 +35,53 @@ const StoreProvider = ({ children }: { children: ReactChildren }) => {
   const [mapRadius, setMapRadius] = useState(defaultState.mapRadius);
   // the coordinates where everyone wants to be
   const [latLng, _setLatLng] = useState(defaultState.latLng);
+  const [sidebarError, setSidebarError] = useState(null);
 
   const setPlaces = (val) => {
-    reactLocalStorage.setObject('at_lunch_last_located', val);
-    _setPlaces(val || []);
+    // NOTE: google.maps.places service isn't typescript friendly here the return
+    // of service.nearbySearch is an `array` but `typeof res === 'object'`
+
+    // cooerce google maps object to array
+    const objectToArray = val?.length > 0 ? val : [];
+    reactLocalStorage.setObject('at_lunch_places', objectToArray);
+    _setPlaces(objectToArray);
   };
 
   const setLocated = (val) => {
-    reactLocalStorage.setObject('at_lunch_last_located', val);
+    reactLocalStorage.setObject('at_lunch_located', val);
     _setLocated(val);
   };
 
   const setLatLng = (val) => {
-    reactLocalStorage.setObject('at_last_lat_lng', val);
-    _setLatLng(val);
+    if (val?.lat && val.lng) {
+      reactLocalStorage.setObject('at_lunch_lat_lng', val);
+      _setLatLng(val);
+    }
   };
 
   useEffect(() => {
-    [
-      'at_lunch_last_located',
-      'at_lunch_places',
-      'at_last_lat',
-      'at_last_lng',
-    ].forEach((key: string) => {
-      let storedValue = reactLocalStorage.getObject(key);
-      // Check if there are no entries, if so change the empty object to an empty array
-      if (Object.entries(storedValue).length === 0) {
-        storedValue = [];
-      }
-      setPlaces(storedValue);
-    });
+    ['at_lunch_places', 'at_lunch_located', 'at_lunch_lat_lng'].forEach(
+      (key: string) => {
+        const storedValue = reactLocalStorage.getObject(key);
+        // NOTE: localstorage returns empty object for previously stored values
+        if (isEmptyObject(storedValue)) {
+          return;
+        }
+        switch (key) {
+          case 'at_lunch_places':
+            setPlaces(storedValue);
+            break;
+          case 'at_lunch_located':
+            setLocated(storedValue);
+            break;
+          case 'at_lunch_lat_lng':
+            setLatLng(storedValue);
+            break;
+          default:
+            break;
+        }
+      },
+    );
   }, []);
 
   return (
@@ -71,11 +92,13 @@ const StoreProvider = ({ children }: { children: ReactChildren }) => {
         mapRadius,
         latLng,
         googleService,
+        sidebarError,
         setLocated,
         setPlaces,
         setMapRadius,
         setLatLng,
         setGoogleService,
+        setSidebarError,
       }}
     >
       {children}
