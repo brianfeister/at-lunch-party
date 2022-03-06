@@ -52,11 +52,11 @@ const getCurrentLocation = async ({ setLatLng, setLocated, latLng }) => {
   let pos = null;
 
   // we have a previous location, but we're offline
-  if (!navigator?.onLine && latLng) {
+  if (navigator && !navigator?.onLine && latLng) {
     pos = latLng;
   }
 
-  if (navigator?.geolocation?.getCurrentPosition) {
+  if (navigator && navigator?.geolocation?.getCurrentPosition) {
     navigator.geolocation.getCurrentPosition(
       (position) => {
         pos = {
@@ -184,7 +184,7 @@ const MainMap = ({ classes }: { classes: object }) => {
       />
     );
   }
-  if (!navigator?.onLine) {
+  if (navigator && !navigator?.onLine) {
     return (
       <MapLoadingSkeleton
         classes={classes}
@@ -203,6 +203,7 @@ const MainMap = ({ classes }: { classes: object }) => {
       // For users who have denied location access (located === false), show the
       // map without geolocation map center assumption – defaults to Taos, NM
       && (located === true || located === false)
+      && navigator
       && navigator?.onLine ? (
           renderMap()
         ) : (
