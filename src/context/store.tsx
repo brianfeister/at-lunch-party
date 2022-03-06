@@ -44,8 +44,10 @@ const StoreProvider = ({ children }: { children: ReactChildren }) => {
   };
 
   const setLocated = (val) => {
-    reactLocalStorage.setObject('at_lunch_last_located', val);
-    _setLocated(val);
+    if (val?.lat && val.lng) {
+      reactLocalStorage.setObject('at_lunch_last_located', val);
+      _setLocated(val);
+    }
   };
 
   const setLatLng = (val) => {
