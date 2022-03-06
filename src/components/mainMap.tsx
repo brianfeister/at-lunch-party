@@ -48,17 +48,12 @@ const MapLoadingSkeleton = ({
   );
 };
 
-const getCurrentLocation = async ({
-  setLatLng,
-  setLocated,
-  located,
-  latLng,
-}) => {
+const getCurrentLocation = async ({ setLatLng, setLocated, latLng }) => {
   let pos = null;
 
   // we have a previous location, but we're offline
-  if (!navigator.onLine && (located || latLng)) {
-    pos = located || latLng;
+  if (!navigator.onLine && latLng) {
+    pos = latLng;
   }
 
   if (navigator.geolocation) {
@@ -74,7 +69,7 @@ const getCurrentLocation = async ({
           && typeof position?.coords?.longitude === 'number'
         ) {
           setLatLng(pos);
-          setLocated(pos);
+          setLocated(true);
         }
 
         if (__map?.setCenter) {
@@ -82,23 +77,19 @@ const getCurrentLocation = async ({
         }
       },
       () => {
-        // user has likely denied location accessp
-        setLocated(undefined);
+        // user has likely denied location access
+        setLocated(false);
       },
     );
   } else {
     // Browser doesn't support Geolocation
-    setLocated(pos);
+    setLocated(false);
   }
 
   return pos;
 };
 
-interface IMainMap {
-  classes: object;
-}
-
-const MainMap = ({ classes }: IMainMap) => {
+const MainMap = ({ classes }: { classes: object }) => {
   const {
     setLatLng,
     latLng,
@@ -118,7 +109,7 @@ const MainMap = ({ classes }: IMainMap) => {
     if (!window?.google?.maps) return;
 
     __map = new window.google.maps.Map(document.getElementById('map'), {
-      center: located || latLng,
+      center: latLng,
       zoom: DEFAULT_ZOOM,
       // TODO: map styles?
       // styles: mapStyle,
@@ -127,7 +118,7 @@ const MainMap = ({ classes }: IMainMap) => {
     setGoogleService(() => service);
 
     const request = {
-      location: located || latLng,
+      location: latLng,
       radius: 500,
       type: ['restaurant'],
     };
@@ -156,7 +147,6 @@ const MainMap = ({ classes }: IMainMap) => {
     getCurrentLocation({
       setLatLng,
       setLocated,
-      located,
       latLng,
     }).then((__located) => {
       // don't trigger onload map callback if user is offline in which
@@ -179,7 +169,7 @@ const MainMap = ({ classes }: IMainMap) => {
       }}
       mapContainerStyle={MAP_CONTAINER_STYLE}
       options={{
-        center: located || latLng,
+        center: latLng,
         zoom: DEFAULT_ZOOM,
       }}
       onLoad={onLoad}
@@ -203,23 +193,21 @@ const MainMap = ({ classes }: IMainMap) => {
     );
   }
 
-  if (!isLoaded) {
+  if (!isLoaded || located === undefined) {
     return <MapLoadingSkeleton classes={classes} text="Locating you..." />;
-  }
-
-  // For users who have denied location access, show the map without
-  // geolocation map center assumption – defaults to Taos, NM
-  if (navigator?.onLine && !located && isLoaded) {
-    return renderMap();
   }
 
   return (
     <>
-      {isLoaded && located !== undefined && navigator?.onLine ? (
-        renderMap()
-      ) : (
-        <MapLoadingSkeleton classes={classes} text="Something went wrong..." />
-      )}
+      {isLoaded
+      // For users who have denied location access (located === false), show the
+      // map without geolocation map center assumption – defaults to Taos, NM
+      && (located === true || located === false)
+      && navigator?.onLine ? (
+          renderMap()
+        ) : (
+          <MapLoadingSkeleton classes={classes} text="Something went wrong..." />
+        )}
     </>
   );
 };

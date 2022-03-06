@@ -14,6 +14,10 @@ const defaultState = {
   googleService: () => {},
 };
 
+const isEmptyObject = (obj: any) => obj
+  && Object.keys(obj).length === 0
+  && Object.getPrototypeOf(obj) === Object.prototype;
+
 const StoreContext = createContext(defaultState);
 
 const StoreProvider = ({ children }: { children: ReactChildren }) => {
@@ -44,10 +48,8 @@ const StoreProvider = ({ children }: { children: ReactChildren }) => {
   };
 
   const setLocated = (val) => {
-    if (val?.lat && val.lng) {
-      reactLocalStorage.setObject('at_lunch_last_located', val);
-      _setLocated(val);
-    }
+    reactLocalStorage.setObject('at_lunch_located', val);
+    _setLocated(val);
   };
 
   const setLatLng = (val) => {
@@ -58,15 +60,18 @@ const StoreProvider = ({ children }: { children: ReactChildren }) => {
   };
 
   useEffect(() => {
-    ['at_lunch_places', 'at_lunch_last_located', 'at_lunch_lat_lng'].forEach(
+    ['at_lunch_places', 'at_lunch_located', 'at_lunch_lat_lng'].forEach(
       (key: string) => {
         const storedValue = reactLocalStorage.getObject(key);
-
+        // NOTE: localstorage returns empty object for previously stored values
+        if (isEmptyObject(storedValue)) {
+          return;
+        }
         switch (key) {
           case 'at_lunch_places':
             setPlaces(storedValue);
             break;
-          case 'at_lunch_last_located':
+          case 'at_lunch_located':
             setLocated(storedValue);
             break;
           case 'at_lunch_lat_lng':
