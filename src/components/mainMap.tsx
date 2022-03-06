@@ -52,11 +52,11 @@ const getCurrentLocation = async ({ setLatLng, setLocated, latLng }) => {
   let pos = null;
 
   // we have a previous location, but we're offline
-  if (!navigator.onLine && latLng) {
+  if (!navigator?.onLine && latLng) {
     pos = latLng;
   }
 
-  if (navigator.geolocation) {
+  if (navigator?.geolocation?.getCurrentPosition) {
     navigator.geolocation.getCurrentPosition(
       (position) => {
         pos = {
