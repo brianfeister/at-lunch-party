@@ -10,6 +10,7 @@ import {
   useState,
   MouseEvent,
   ReactNode,
+  SyntheticEvent,
 } from 'react';
 import TextField from '@material-ui/core/TextField';
 import { makeStyles } from '@material-ui/core';
@@ -19,7 +20,10 @@ import Popper from '@material-ui/core/Popper';
 import Fade from '@material-ui/core/Fade';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
+import Snackbar from '@material-ui/core/Snackbar';
+import MuiAlert from '@material-ui/lab/Alert';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
+import copy from 'copy-to-clipboard';
 import { StoreContext } from '../context/store';
 import Search from '../images/search.svg';
 import FilterInactive from '../images/filter-inactive.svg';
@@ -112,10 +116,12 @@ export const PopperWithClickAway = ({
 const SearchBox = () => {
   const classes = useStyles();
   const {
-    searchQuery, setSearchQuery, searchSort, setSearchSort,
-  } = useContext(
-    StoreContext,
-  );
+    searchQuery,
+    setSearchQuery,
+    searchSort,
+    setSearchSort,
+    places,
+  } = useContext(StoreContext);
   const popperId = 'filter';
 
   const [ratingSort, setRatingSort] = useState<'ascending' | 'descending'>(
@@ -123,7 +129,7 @@ const SearchBox = () => {
   );
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
-
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
   const anchorRef = useRef<HTMLButtonElement>(null);
 
   const handleToggle = () => {
@@ -139,6 +145,31 @@ const SearchBox = () => {
     }
 
     setDropdownOpen(false);
+  };
+
+  const handleSnackbarClick = () => {
+    const searchParams = new URLSearchParams(window.location.search);
+
+    places.forEach((place) => {
+      if (
+        place?.favorite
+        // don't dupe existing url params
+        && !searchParams?.getAll('place_id')?.includes(place?.place_id)
+      ) {
+        searchParams.append('place_id', place?.place_id);
+      }
+    });
+    const shareableUrl = `${window.location.origin}?${searchParams.toString()}`;
+    copy(shareableUrl);
+    setSnackbarOpen(true);
+  };
+
+  const handleSnackbarClose = (event?: SyntheticEvent, reason?: string) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setSnackbarOpen(false);
   };
 
   // return focus after transitioning from button to clickaway
@@ -196,6 +227,30 @@ const SearchBox = () => {
           </div>
         </div>
       </PopperWithClickAway>
+      <Button
+        ref={anchorRef}
+        className={classes.filter}
+        onClick={handleSnackbarClick}
+        aria-controls={dropdownOpen ? popperId : undefined}
+        aria-haspopup="true"
+        variant="outlined"
+      >
+        Share
+      </Button>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+      >
+        <MuiAlert
+          elevation={6}
+          variant="filled"
+          onClose={handleSnackbarClose}
+          severity="success"
+        >
+          Shareable Favorites Link Copied to Clipboard!
+        </MuiAlert>
+      </Snackbar>
       <Button
         ref={anchorRef}
         className={classes.filter}

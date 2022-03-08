@@ -21,6 +21,12 @@ const isEmptyObject = (obj: any) => obj
 const StoreContext = createContext(defaultState);
 
 const StoreProvider = ({ children }: { children: ReactChildren }) => {
+  const qsFavorites = new URLSearchParams(window.location.search).getAll(
+    'place_id',
+  );
+
+  const [initialFavorites] = useState(qsFavorites ?? []);
+
   const [located, _setLocated] = useState(defaultState.located);
   const [googleService, setGoogleService] = useState(
     defaultState.googleService,
@@ -46,7 +52,15 @@ const StoreProvider = ({ children }: { children: ReactChildren }) => {
     // of service.nearbySearch is an `array` but `typeof res === 'object'`
 
     // cooerce google maps object to array
-    const objectToArray = val?.length > 0 ? val : [];
+    let objectToArray = val?.length > 0 ? val : [];
+
+    objectToArray = objectToArray.map((place) => ({
+      ...place,
+      // initially set places from url string, but also allow toggle
+      ...(initialFavorites.includes(place?.place_id)
+        ? { favorite: place?.favorite === undefined ? true : place?.favorite }
+        : {}),
+    }));
     reactLocalStorage.setObject('at_lunch_places', objectToArray);
     _setPlaces(objectToArray);
   };
