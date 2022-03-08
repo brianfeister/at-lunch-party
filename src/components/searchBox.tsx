@@ -60,15 +60,12 @@ const useStyles = makeStyles((theme) => ({
     marginRight: 32,
     padding: '0 20px',
     [theme.breakpoints.down('md')]: {
-      // padding: '0',
       minWidth: '10vw',
       marginRight: 20,
     },
     [theme.breakpoints.down('sm')]: {
       fontSize: '0.8rem',
-      padding: '0 5px',
-      // width: '7vw',
-      marginRight: 3,
+      padding: '0 10px',
     },
   },
   filterPopover: {
