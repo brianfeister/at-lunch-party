@@ -35,6 +35,18 @@ const useStyles = makeStyles((theme) => ({
     textAlign: 'center',
     width: '100%',
   },
+  // 🎉 oh the joys of integrating multiple JS systems (React + Google Maps)
+  '@global': {
+    '.gm-ui-hover-effect': {
+      display: 'none !important',
+    },
+    '.gm-style .gm-style-iw-c': {
+      paddingBottom: '0 !important',
+    },
+    '.gm-style .gm-style-iw-d': {
+      marginBottom: '0 !important',
+    },
+  },
 }));
 
 const IndexPage = () => {

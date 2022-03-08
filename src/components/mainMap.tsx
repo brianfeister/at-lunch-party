@@ -1,11 +1,21 @@
-import { useContext, useCallback, useEffect } from 'react';
-import { useJsApiLoader, GoogleMap } from '@react-google-maps/api';
+import {
+  Fragment, useContext, useCallback, useState, useEffect,
+} from 'react';
+import {
+  useJsApiLoader,
+  GoogleMap,
+  Marker,
+  InfoWindow,
+} from '@react-google-maps/api';
 import Lottie from 'react-lottie';
 import { Typography } from '@material-ui/core';
 import { StoreContext } from '../context/store';
 import animationData from '../lotties/map-loading.json';
+import PinInactive from '../images/pin-inactive.svg';
+import PinActive from '../images/pin-active.svg';
+import { PlaceCard } from './resultsSidebar';
 
-const DEFAULT_ZOOM: number = 12;
+const DEFAULT_ZOOM: number = 17;
 
 const MAP_CONTAINER_STYLE: object = {
   height: '100%',
@@ -92,10 +102,89 @@ const getCurrentLocation = async ({ setLatLng, setLocated, latLng }) => {
   return pos;
 };
 
+const PlaceMarker = ({ place }: { place: object }) => {
+  const [popupVisible, setPopupVisible] = useState(false);
+  const { toggleFavorite, searchQuery } = useContext(StoreContext);
+  const popperId = 'filter';
+
+  let otherClickEvent;
+
+  const onOtherClick = () => {
+    otherClickEvent = window.addEventListener('click', () => {
+      setPopupVisible(false);
+    });
+  };
+
+  const showPopup = (e) => {
+    e.domEvent.preventDefault();
+    e.domEvent.stopPropagation();
+    setPopupVisible(true);
+  };
+
+  useEffect(() => {
+    if (popupVisible === true) {
+      onOtherClick();
+    }
+  }, [popupVisible]);
+
+  return (
+    <Marker
+      visible={
+        searchQuery === ''
+        || place?.name?.toLowerCase?.()?.match(searchQuery.toLowerCase())?.[0]
+          ?.length > 0
+      }
+      position={place?.geometry?.location}
+      map={__map}
+      icon={{
+        url: place?.favorite ? PinActive : PinInactive,
+        // this code can't execute unless google api is loaded
+        // eslint-disable-next-line no-undef
+        size: new google.maps.Size(100, 100),
+        // eslint-disable-next-line no-undef
+        scaledSize: new google.maps.Size(32, 32),
+        // eslint-disable-next-line no-undef
+        origin: new google.maps.Point(0, 0),
+        // eslint-disable-next-line no-undef
+        anchor: new google.maps.Point(16, 16),
+      }}
+      onClick={showPopup}
+      aria-haspopup="true"
+      onDblClick={() => {
+        toggleFavorite(place);
+      }}
+      // NOTE: these kinds of lifecycle events made React difficult to manage
+      // and for this reason, React hooks were a huge improvement, in this case
+      // material-ui's <ClickAwayListener /> does not work with the Google Maps
+      // React lib being used as it is written in pre-hooks React and expects
+      // children components to be capable of `useForwardRef` but <InfoWindow>
+      // is not. Hence, we add a global even listener and clean it up on unMount
+      // to prevent memory leaks
+      onUnmount={() => {
+        window.removeEventListener('click', otherClickEvent);
+      }}
+    >
+      {popupVisible && (
+        <InfoWindow
+          id={popperId}
+          options={{
+            // eslint-disable-next-line no-undef
+            pixelOffset: new google.maps.Size(-37, 0),
+          }}
+          position={place?.geometry?.location}
+        >
+          <PlaceCard key={place?.place_id} place={place} width={320} />
+        </InfoWindow>
+      )}
+    </Marker>
+  );
+};
+
 const MainMap = ({ classes }: { classes: object }) => {
   const {
     setLatLng,
     latLng,
+    places,
     setPlaces,
     setGoogleService,
     located,
@@ -114,30 +203,40 @@ const MainMap = ({ classes }: { classes: object }) => {
     __map = new window.google.maps.Map(document.getElementById('map'), {
       center: latLng,
       zoom: DEFAULT_ZOOM,
-      // TODO: map styles?
-      // styles: mapStyle,
+      mapTypeId: 'terrain', // roadmap | satellite | hybrid | terrain
+      styles: [
+        {
+          featureType: 'all',
+          elementType: 'labels.icon',
+          stylers: [
+            {
+              visibility: 'off',
+            },
+          ],
+        },
+      ],
     });
     const service = new window.google.maps.places.PlacesService(mapInstance);
     setGoogleService(() => service);
 
-    const request = {
+    const nearbyRequest = {
       location: latLng,
       radius: 500,
       type: ['restaurant'],
+      // don't show places that are temporarily / permanently closed
+      business_status: 'OPERATIONAL',
     };
+
     service.nearbySearch(
-      request,
+      nearbyRequest,
       (res) => {
         // don't overwrite potentially useful previous results in local storage unless
         // we have a meaningful response from the places service
-        if (res.length > 0) {
+        if (res?.length > 0) {
           setPlaces(res);
         }
       },
       (err) => {
-        // TODO: handle for error
-        // eslint-disable-next-line no-console
-        console.log('~err', err);
         setSidebarError(
           `Received the following error fetching nearby places. Error: ${err}`,
         );
@@ -162,21 +261,20 @@ const MainMap = ({ classes }: { classes: object }) => {
     });
   }, []);
 
-  // TODO: places API response stopped returning results
-  // for some reason works when geolocation is denied
   const renderMap = () => (
     <GoogleMap
       mapRef={__map}
-      setMapCallback={() => {
-        // TODO: handle for map / places data change here if needed?
-      }}
       mapContainerStyle={MAP_CONTAINER_STYLE}
       options={{
         center: latLng,
         zoom: DEFAULT_ZOOM,
       }}
       onLoad={onLoad}
-    />
+    >
+      {places?.map((place) => (
+        <PlaceMarker key={place.place_id} place={place} />
+      ))}
+    </GoogleMap>
   );
 
   if (loadError) {

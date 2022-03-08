@@ -2,6 +2,7 @@ import { ReactElement } from 'react';
 import { Link } from 'gatsby';
 import PropTypes from 'prop-types';
 import { makeStyles, Box, Typography } from '@material-ui/core';
+import SearchBox from './searchBox';
 import Logo from '../images/logo.svg';
 
 interface HeaderProps {
@@ -31,6 +32,7 @@ function Header({ siteTitle }: HeaderProps): ReactElement {
         <Link className={classes.link} to="/">
           <img src={Logo} alt={siteTitle} />
         </Link>
+        <SearchBox />
       </Typography>
     </Box>
   );
