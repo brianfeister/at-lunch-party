@@ -36,6 +36,10 @@ const StoreProvider = ({ children }: { children: ReactChildren }) => {
   // the coordinates where everyone wants to be
   const [latLng, _setLatLng] = useState(defaultState.latLng);
   const [sidebarError, setSidebarError] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchSort, setSearchSort] = useState<'ascending' | 'descending'>(
+    'descending',
+  );
 
   const setPlaces = (val) => {
     // NOTE: google.maps.places service isn't typescript friendly here the return
@@ -57,6 +61,17 @@ const StoreProvider = ({ children }: { children: ReactChildren }) => {
       reactLocalStorage.setObject('at_lunch_lat_lng', val);
       _setLatLng(val);
     }
+  };
+
+  const toggleFavorite = (targetPlace: any) => {
+    setPlaces(
+      places.map((place) => ({
+        ...place,
+        ...(targetPlace?.place_id === place?.place_id
+          ? { favorite: !place?.favorite }
+          : {}),
+      })),
+    );
   };
 
   useEffect(() => {
@@ -93,12 +108,17 @@ const StoreProvider = ({ children }: { children: ReactChildren }) => {
         latLng,
         googleService,
         sidebarError,
+        searchQuery,
+        searchSort,
         setLocated,
         setPlaces,
         setMapRadius,
         setLatLng,
         setGoogleService,
         setSidebarError,
+        setSearchQuery,
+        setSearchSort,
+        toggleFavorite,
       }}
     >
       {children}

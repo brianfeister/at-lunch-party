@@ -3,6 +3,10 @@ const { createMuiTheme, ThemeProvider } = require('@material-ui/core');
 const { StoreProvider } = require('./src/context/store');
 
 const defaultTheme = createMuiTheme({
+  shape: {
+    borderRadius: 12, // global radius
+  },
+  palette: { primary: { main: '#428A13' } },
   typography: {
     fontFamily: [
       'IBM Plex Sans',
