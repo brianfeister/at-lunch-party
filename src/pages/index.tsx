@@ -25,14 +25,13 @@ const useStyles = makeStyles((theme) => ({
   // NOTE: !important styles here are necessary to override
   // google maps inline styles
   map: {
-    display: (props) => (props.openView === 'list' ? 'none' : 'inherit'),
     position: 'fixed !important',
     width: '65vw',
     height: 'calc(100% - 5.5rem)',
     top: '5.5rem',
     right: 0,
     [theme.breakpoints.down('md')]: {
-      position: 'fixed !important',
+      display: 'none',
       width: '100%',
       height: '100vh',
       zIndex: '-1',
@@ -53,6 +52,10 @@ const useStyles = makeStyles((theme) => ({
     width: 100,
     fontWeight: 'bold',
     textTransform: 'none',
+    display: 'none',
+    [theme.breakpoints.down('md')]: {
+      display: 'inherit',
+    },
   },
   // 🎉 oh the joys of integrating multiple JS systems (React + Google Maps)
   '@global': {
@@ -101,7 +104,7 @@ const MobileToggle = ({
 );
 
 const IndexPage = () => {
-  const { openView, setOpenView, isMobile } = useContext(StoreContext);
+  const { openView, setOpenView } = useContext(StoreContext);
   const classes = useStyles({ openView });
   return (
     <Layout>
@@ -109,13 +112,11 @@ const IndexPage = () => {
       {(openView === 'list' || openView === null) && <ResultsSidebar />}
       <MainMap classes={classes} />
       <div id="map" className={classes.map} />
-      {isMobile && (
-        <MobileToggle
-          classes={classes}
-          openView={openView}
-          setOpenView={setOpenView}
-        />
-      )}
+      <MobileToggle
+        classes={classes}
+        openView={openView}
+        setOpenView={setOpenView}
+      />
     </Layout>
   );
 };
