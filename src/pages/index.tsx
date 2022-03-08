@@ -101,7 +101,7 @@ const MobileToggle = ({
 );
 
 const IndexPage = () => {
-  const { openView, setOpenView } = useContext(StoreContext);
+  const { openView, setOpenView, isMobile } = useContext(StoreContext);
   const classes = useStyles({ openView });
   return (
     <Layout>
@@ -109,11 +109,13 @@ const IndexPage = () => {
       {(openView === 'list' || openView === null) && <ResultsSidebar />}
       <MainMap classes={classes} />
       <div id="map" className={classes.map} />
-      <MobileToggle
-        classes={classes}
-        openView={openView}
-        setOpenView={setOpenView}
-      />
+      {isMobile && (
+        <MobileToggle
+          classes={classes}
+          openView={openView}
+          setOpenView={setOpenView}
+        />
+      )}
     </Layout>
   );
 };
