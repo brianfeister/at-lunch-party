@@ -2,6 +2,8 @@ import {
   createContext, useState, useEffect, ReactChildren,
 } from 'react';
 import { reactLocalStorage } from 'reactjs-localstorage';
+import { useTheme } from '@material-ui/core/styles';
+import useMediaQuery from '@material-ui/core/useMediaQuery';
 
 const defaultState = {
   located: undefined,
@@ -46,6 +48,18 @@ const StoreProvider = ({ children }: { children: ReactChildren }) => {
   const [searchSort, setSearchSort] = useState<'ascending' | 'descending'>(
     'descending',
   );
+  const [openView, setOpenView] = useState<'map' | 'list' | null>(null);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
+  // initially set the store with 'list' when the client loads and we know
+  // the user is at the mobile breakpoint, this defaults to `null` for the
+  // default desktop view and so we have an enum 'mobil' | 'list' | null
+  useEffect(() => {
+    if (openView === null && isMobile) {
+      setOpenView('list');
+    }
+  }, [isMobile]);
 
   const setPlaces = (val) => {
     // NOTE: google.maps.places service isn't typescript friendly here the return
@@ -124,6 +138,8 @@ const StoreProvider = ({ children }: { children: ReactChildren }) => {
         sidebarError,
         searchQuery,
         searchSort,
+        openView,
+        isMobile,
         setLocated,
         setPlaces,
         setMapRadius,
@@ -133,6 +149,7 @@ const StoreProvider = ({ children }: { children: ReactChildren }) => {
         setSearchQuery,
         setSearchSort,
         toggleFavorite,
+        setOpenView,
       }}
     >
       {children}

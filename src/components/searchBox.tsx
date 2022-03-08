@@ -33,17 +33,43 @@ const useStyles = makeStyles((theme) => ({
   container: {
     float: 'right',
     marginTop: -7,
+    [theme.breakpoints.down('md')]: {
+      float: 'inherit',
+      margin: '0 auto',
+      paddingBottom: 20,
+      textAlign: 'center',
+      display: 'flex',
+      placeContent: 'flex-end',
+    },
+    [theme.breakpoints.down('sm')]: {
+      justifyContent: 'space-between',
+    },
   },
   searchField: {
     marginTop: 0,
     marginBottom: 0,
     float: 'right',
     minWidth: 300,
+    [theme.breakpoints.down('md')]: {
+      minWidth: '55vw',
+      width: '55vw',
+    },
   },
   filter: {
     height: 56,
     marginRight: 32,
     padding: '0 20px',
+    [theme.breakpoints.down('md')]: {
+      // padding: '0',
+      minWidth: '10vw',
+      marginRight: 20,
+    },
+    [theme.breakpoints.down('sm')]: {
+      fontSize: '0.8rem',
+      padding: '0 5px',
+      // width: '7vw',
+      marginRight: 3,
+    },
   },
   filterPopover: {
     marginTop: 12,
