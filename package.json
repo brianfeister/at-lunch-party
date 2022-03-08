@@ -42,7 +42,9 @@
   "dependencies": {
     "@material-ui/core": "^4.11.3",
     "@material-ui/icons": "^4.11.2",
+    "@material-ui/lab": "^4.0.0-alpha.60",
     "@react-google-maps/api": "^2.7.0",
+    "copy-to-clipboard": "^3.3.1",
     "gatsby": "^3.1.2",
     "gatsby-plugin-gatsby-cloud": "^2.1.0",
     "gatsby-plugin-google-fonts": "^1.0.1",
