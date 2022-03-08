@@ -11,7 +11,7 @@
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 
-import { useContext } from 'react';
+import { useContext, Fragment } from 'react';
 import { makeStyles } from '@material-ui/core';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
@@ -32,13 +32,9 @@ const useStyles = makeStyles((theme) => ({
     background: '#f2f2f2',
     padding: '1vw',
     [theme.breakpoints.down('md')]: {
-      // TODO: decide about drawer vs other hide / show for final mobile
-      // for now, we hide it
-
-      display: 'none',
-      // width: '100%',
-      // height: 'auto',
-      // position: 'relative',
+      width: '100%',
+      height: 'auto',
+      position: 'relative',
     },
   },
   contentCard: {
@@ -71,7 +67,6 @@ const useStyles = makeStyles((theme) => ({
     height: 100,
     objectFit: 'cover',
     float: 'left',
-    // paddingBottom: 16,
     marginRight: 12,
   },
   innerRow: {
@@ -112,7 +107,11 @@ export const PlaceCard = ({
   );
 
   return (
-    <div className={classes.placeContainer} style={{ width: width ?? 'auto' }}>
+    <div
+      key={place?.place_id}
+      className={classes.placeContainer}
+      style={{ width: width ?? 'auto' }}
+    >
       <img
         alt={place?.name}
         className={classes.favorite}
@@ -140,24 +139,25 @@ export const PlaceCard = ({
         </Typography>
         {place?.rating && place?.user_ratings_total && (
           <div>
-            {ratings.map((isStar) => (
-              <img alt="star" src={isStar === '+' ? StarFilled : StarEmpty} />
-            ))}
-            {' '}
-            (
-            {place?.user_ratings_total?.toLocaleString('en-US')}
-            )
+            {ratings.map((isStar, idx) => (
+              <img
+                // eslint-disable-next-line react/no-array-index-key
+                key={idx + isStar}
+                alt="star"
+                src={isStar === '+' ? StarFilled : StarEmpty}
+              />
+            ))}{' '}
+            {/* eslint-disable-next-line react/no-array-index-key */}(
+            {place?.user_ratings_total?.toLocaleString('en-US')})
           </div>
         )}
         <div className={classes.innerRow}>
           {place?.price_level ? (
             <>
-              {priceLevel.map(() => (
-                <>$</>
-              ))}
-              {' '}
-              &bull;
-              {' '}
+              {priceLevel.map((idx) => (
+                <Fragment key={idx}>$</Fragment>
+              ))}{' '}
+              &bull;{' '}
             </>
           ) : null}
           {place?.vicinity}
@@ -237,7 +237,7 @@ const ResultsSidebar = () => {
       {filteredPlaces.map((place) => (
         <Card key={place?.place_id} className={classes.card} variant="outlined">
           <CardContent className={classes.contentCard}>
-            <PlaceCard place={place} />
+            <PlaceCard key={place?.place_id} place={place} />
           </CardContent>
         </Card>
       ))}

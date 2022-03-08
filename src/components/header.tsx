@@ -9,10 +9,13 @@ interface HeaderProps {
   siteTitle?: string;
 }
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) => ({
   container: {
-    background: 'white',
-    marginBottom: '1.45rem',
+    padding: '1.45rem 1.0875rem',
+    margin: '0 auto',
+    [theme.breakpoints.down('md')]: {
+      padding: '3vw 3vw',
+    },
   },
   title: {
     fontWeight: 'bold',
@@ -21,13 +24,18 @@ const useStyles = makeStyles({
   },
   link: {
     textDecoration: 'none',
+    [theme.breakpoints.down('md')]: {
+      textAlign: 'center',
+      margin: '0 auto 20px',
+      display: 'block',
+    },
   },
-});
+}));
 
 function Header({ siteTitle }: HeaderProps): ReactElement {
   const classes = useStyles();
   return (
-    <Box paddingX="1.0875rem" paddingY="1.45rem" marginX="auto" marginY="0">
+    <Box className={classes.container}>
       <Typography variant="h3" component="h3" className={classes.title}>
         <Link className={classes.link} to="/">
           <img src={Logo} alt={siteTitle} />
