@@ -31,10 +31,11 @@ const useStyles = makeStyles((theme) => ({
     top: '5.5rem',
     right: 0,
     [theme.breakpoints.down('md')]: {
-      display: 'none',
+      position: 'relative',
+      opacity: (props) => (props.openView === 'list' ? 0 : 1),
+      height: (props) => (props.openView === 'list' ? 0 : '100%'),
+      marginTop: '10vh',
       width: '100%',
-      height: '100vh',
-      zIndex: '-1',
     },
   },
   resultsSidebar: {
@@ -109,7 +110,7 @@ const IndexPage = () => {
   return (
     <Layout>
       <SEO title="Home" />
-      {(openView === 'list' || openView === null) && <ResultsSidebar />}
+      <ResultsSidebar openView={openView} setOpenView={setOpenView} />
       <MainMap classes={classes} />
       <div id="map" className={classes.map} />
       <MobileToggle

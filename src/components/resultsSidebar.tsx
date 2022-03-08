@@ -33,8 +33,9 @@ const useStyles = makeStyles((theme) => ({
     padding: '1vw',
     [theme.breakpoints.down('md')]: {
       width: '100%',
-      height: 'auto',
       position: 'relative',
+      opacity: (props) => (props.openView === 'map' ? 0 : 1),
+      height: (props) => (props.openView === 'map' ? 0 : 'auto'),
     },
   },
   contentCard: {
@@ -167,8 +168,8 @@ export const PlaceCard = ({
   );
 };
 
-const ResultsSidebar = () => {
-  const classes = useStyles();
+const ResultsSidebar = ({ openView }: { openView: 'map' | 'list' | null }) => {
+  const classes = useStyles({ openView });
   const {
     places, sidebarError, searchQuery, searchSort,
   } = useContext(
